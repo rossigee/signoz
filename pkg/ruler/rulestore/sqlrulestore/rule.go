@@ -69,14 +69,25 @@ func (r *rule) EditRule(ctx context.Context, storedRule *ruletypes.StorableRule,
 
 func (r *rule) DeleteRule(ctx context.Context, id valuer.UUID, cb func(context.Context) error) error {
 	if err := r.sqlstore.RunInTxCtx(ctx, nil, func(ctx context.Context) error {
+		// Delete associated maintenance rules first to handle cascading
 		_, err := r.sqlstore.
+			BunDBCtx(ctx).
+			NewDelete().
+			Model(new(ruletypes.StorablePlannedMaintenanceRule)).
+			Where("rule_id = ?", id.StringValue()).
+			Exec(ctx)
+		if err != nil {
+			return err
+		}
+
+		_, err = r.sqlstore.
 			BunDBCtx(ctx).
 			NewDelete().
 			Model(new(ruletypes.StorableRule)).
 			Where("id = ?", id.StringValue()).
 			Exec(ctx)
 		if err != nil {
-			return r.sqlstore.WrapAlreadyExistsErrf(err, errors.CodeAlreadyExists, "cannot delete rule because it is referenced by a planned maintenance, remove the rule from the planned maintenance first")
+			return err
 		}
 
 		return cb(ctx)
