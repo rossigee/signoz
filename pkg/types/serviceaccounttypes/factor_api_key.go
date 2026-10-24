@@ -50,8 +50,9 @@ type GettableFactorAPIKey struct {
 }
 
 type PostableFactorAPIKey struct {
-	Name      string `json:"name" required:"true"`
-	ExpiresAt uint64 `json:"expiresAt" required:"true"`
+	Name      string         `json:"name" required:"true"`
+	ExpiresAt uint64         `json:"expiresAt" required:"true"`
+	RoleIDs   []valuer.UUID  `json:"roleIds,omitempty"`
 }
 
 type UpdatableFactorAPIKey struct {

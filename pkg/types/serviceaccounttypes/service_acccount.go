@@ -66,7 +66,8 @@ type ServiceAccountWithRoles struct {
 }
 
 type PostableServiceAccount struct {
-	Name string `json:"name" required:"true"`
+	Name     string         `json:"name" required:"true"`
+	RoleIDs  []valuer.UUID  `json:"roleIds,omitempty"`
 }
 
 type PostableServiceAccountRole struct {

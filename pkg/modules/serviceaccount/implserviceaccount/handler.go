@@ -43,6 +43,14 @@ func (handler *handler) Create(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	orgID := valuer.MustNewUUID(claims.OrgID)
+	for _, roleID := range req.RoleIDs {
+		if _, err := handler.module.SetRole(ctx, orgID, serviceAccount.ID, roleID); err != nil {
+			render.Error(rw, err)
+			return
+		}
+	}
+
 	render.Success(rw, http.StatusCreated, types.Identifiable{ID: serviceAccount.ID})
 }
 
@@ -337,6 +345,14 @@ func (handler *handler) CreateFactorAPIKey(rw http.ResponseWriter, r *http.Reque
 	if err != nil {
 		render.Error(rw, err)
 		return
+	}
+
+	orgID := valuer.MustNewUUID(claims.OrgID)
+	for _, roleID := range req.RoleIDs {
+		if _, err := handler.module.SetRole(ctx, orgID, serviceAccount.ID, roleID); err != nil {
+			render.Error(rw, err)
+			return
+		}
 	}
 
 	factorAPIKey, err := serviceAccount.NewFactorAPIKey(req.Name, req.ExpiresAt)
